@@ -23,11 +23,11 @@ res = Net::HTTP.post_form(uri, {"email" => params[:inputEmail], "subject" => par
   end
 end
 not_found do
-  File.read('_site/404.html')
+  { :message => 'inside not_found' }.to_json
 end
 
 get '/*' do
-  file_name = "_site#{request.path_info}/index.html".gsub(%r{\/+},'/')
+  file_name = "#{request.path_info}/index.html".gsub(%r{\/+},'/')
   if File.exists?(file_name)
     File.read(file_name)
   else
