@@ -10,11 +10,12 @@ end
     set :public_dir, Proc.new { File.join(root, "_site") }
 
 post '/send_email' do
-    url = URI.parse("http://www.google.com/recaptcha/api/siteverify")
+    url = URI.parse("https://www.google.com/recaptcha/api/siteverify")
 req = Net::HTTP::Post.new(url.request_uri)
 req.set_form_data({"secret" => "6LcLwAATAAAAACTOnf7pIuFZOsvLBe9WrqgrogOQ", "response" => params[:'g-recaptcha-response']})
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = (url.scheme == "https")
+http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     p url.request_uri
     p url.host
     p url.port
