@@ -24,6 +24,8 @@ http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 res = http.request(req)
   p res.body.lines
     success, errorkey = res.body.lines.map(&:chomp)
+    p success
+    p errorkey
   if success == 'true'
     uri = URI.parse("http://formspree.io/udbhav1995@gmail.com")
     res = Net::HTTP.post_form(uri, {"email" => params[:inputEmail], "subject" => params[:inputSubject] , "content" => params[:content]})    
