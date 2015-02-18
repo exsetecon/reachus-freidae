@@ -1,6 +1,4 @@
 before do
-      puts '[Params]'
-      p params
       content_type :json
       headers 'Access-Control-Allow-Origin' => '*',
               'Access-Control-Allow-Methods' => ['POST']
@@ -16,20 +14,39 @@ req.set_form_data({"secret" => "6LcLwAATAAAAACTOnf7pIuFZOsvLBe9WrqgrogOQ", "resp
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = (url.scheme == "https")
 http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-    p url.request_uri
-    p url.host
-    p url.port
-    p url.scheme
-    p req.body.lines   
 res = http.request(req)
-  p res.body.lines
-    success, errorkey = res.body.lines.map(&:chomp)
-    p success
-    p errorkey
-  if success == 'true'
-    uri = URI.parse("http://formspree.io/udbhav1995@gmail.com")
-    res = Net::HTTP.post_form(uri, {"email" => params[:inputEmail], "subject" => params[:inputSubject] , "content" => params[:content]})    
-    if res
+    resJSON = JSON.parse(res.body)
+  if resJSON['success']
+    #uri = URI.parse("http://formspree.io/udbhav1995@gmail.com")
+    #resp = Net::HTTP.post_form(uri, {"email" => params[:email], "subject" => params[:subject] , "content" => params[:content]})  
+    require 'mandrill'
+    m = Mandrill::API.new 'KoRD0D6ldDKZrkku18vrXQ'
+    template_name = 'freidae-contact-form'
+    template_content = [{
+     :name => 'email',
+     :content => params[:email]
+    },
+    {
+     :name => 'subject',
+     :content =>  params[:subject]  
+    },
+    {
+     :name => 'category',
+     :content => params[:category]
+    },
+    {
+     :name => 'content',
+     :content => params[:content]
+    }]
+      message = {"to"=>
+        [{"email"=>"udbhav1995@gmail.com",
+            "type"=>"to",
+            "name"=>"freidae"}],
+     "subject"=>"freidae contact us form"}
+      resp=m.messages.send_template template_name, template_content, message
+      p resp  
+      p resp[0]['status']
+    if resp[0]['status'] == 'sent'
       { :message => 'success' }.to_json
     else
       { :message => 'failure_email' }.to_json
