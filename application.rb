@@ -1,3 +1,4 @@
+require 'net/http'
 before do
       content_type :json
       headers 'Access-Control-Allow-Origin' => '*',
