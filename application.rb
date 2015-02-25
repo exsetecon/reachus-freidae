@@ -9,7 +9,7 @@ end
     set :public_dir, Proc.new { File.join(root, "_site") }
 
 post '/send_email' do
-    url = URI.parse("https://www.google.com/recaptcha/api/siteverify")
+    url = URI.parse(settings.google_recaptcha_server)
 req = Net::HTTP::Post.new(url.request_uri)
 req.set_form_data({"secret" => settings.private_key_recaptcha, "response" => params[:'g-recaptcha-response']})
 http = Net::HTTP.new(url.host, url.port)
@@ -20,7 +20,7 @@ res = http.request(req)
   if resJSON['success']  
     require 'mandrill'
     m = Mandrill::API.new settings.api_key_mandrill
-    template_name = 'freidae-contact-form'
+    template_name = settings.tag_mandrill
     template_content = [{
      :name => 'email',
      :content => params[:email]
@@ -41,7 +41,7 @@ res = http.request(req)
         [{"email"=>settings.email_mandrill,
             "type"=>"to",
             "name"=>"freidae"}],
-     "subject"=>"freidae contact us form"}
+     "subject"=>settings.subject_message_mandrill}
       resp=m.messages.send_template template_name, template_content, message
     if resp[0]['status'] == 'sent'
       { :message => 'success' }.to_json
